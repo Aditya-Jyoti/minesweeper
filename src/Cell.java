@@ -9,6 +9,7 @@ public class Cell {
     private JButton button;
     private boolean hidden = true;
     private boolean bomb = false;
+    private boolean flagged = false;
     private int bombNumber = 0;
     private Map<String, Integer> position;
 
@@ -36,6 +37,10 @@ public class Cell {
         this.bomb = isBomb;
     }
 
+    public void setFlagged(boolean isFlagged) {
+        this.flagged = isFlagged;
+    }
+
     /* Getter */
 
     public Map<String, Integer> getPosition() {
@@ -54,6 +59,10 @@ public class Cell {
         return this.hidden;
     }
 
+    public boolean getFlagged() {
+        return this.flagged;
+    }
+
     public JButton getButton() {
         return this.button;
     }
@@ -63,12 +72,22 @@ public class Cell {
 
         ImageIcon icon = new ImageIcon("assets/covered.png");
 
-        if (this.bomb) {
-            icon = new ImageIcon("assets/bomb.png");
-        } else if (!this.bomb && !this.hidden) {
-            icon = new ImageIcon("assets/" + Integer.toString(this.getBombNumber()) + ".png");
+        if (!this.hidden) {
+            if (this.bomb) {
+                icon = new ImageIcon("assets/bomb.png");
+            } else {
+                icon = new ImageIcon("assets/" + Integer.toString(this.getBombNumber()) + ".png");
+            }
+        }
+        if (this.flagged) {
+            icon = new ImageIcon("assets/flagged.png");
         }
 
+        this.button.setIcon(new ImageIcon(icon.getImage().getScaledInstance(40, -1, Image.SCALE_SMOOTH)));
+    }
+
+    public void showBomb() {
+        ImageIcon icon = new ImageIcon("assets/bomb.png");
         this.button.setIcon(new ImageIcon(icon.getImage().getScaledInstance(40, -1, Image.SCALE_SMOOTH)));
     }
 }

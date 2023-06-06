@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -21,17 +23,19 @@ public class Minesweeper {
     private JFrame frame = new JFrame("Minesweeper");
 
     private List<List<Cell>> gameBoard = new ArrayList<>();
+    private List<Cell> bombCells = new ArrayList<>();
     private List<Cell> recursingCells = new ArrayList<>();
 
+    private boolean gameOver = false;
+
     private void recursiveReveal() {
+        if (recursingCells.size() == 0) {
+            return;
+        }
+
         Cell currCell = recursingCells.get(0);
         int currXIdx = currCell.getPosition().get("xIdx");
         int currYIdx = currCell.getPosition().get("yIdx");
-
-        if (currCell.getBombNumber() != 0) {
-            recursingCells.remove(0);
-            recursiveReveal();
-        }
 
         for (int nbrYIdx = -1; nbrYIdx < 2; nbrYIdx++) {
             for (int nbrXIdx = -1; nbrXIdx < 2; nbrXIdx++) {
@@ -48,17 +52,15 @@ public class Minesweeper {
                     nbrCell.setHidden(false);
                     gameBoard.get(currYIdx + nbrYIdx).set(currXIdx + nbrXIdx, nbrCell);
                     nbrCell.updateButton();
-                    recursingCells.add(nbrCell);
+
+                    if (currCell.getBombNumber() == 0) {
+                        recursingCells.add(nbrCell);
+                    }
                 }
 
             }
         }
-        if (recursingCells.size() == 0) {
-            return;
-        }
-        
         recursingCells.remove(0);
-
         recursiveReveal();
     }
 
@@ -88,6 +90,7 @@ public class Minesweeper {
 
             gameBoard.get(mineYIdx).get(mineXIdx).setBomb(true);
             gameBoard.get(mineYIdx).get(mineXIdx).setBombNumber(-1);
+            bombCells.add(gameBoard.get(mineYIdx).get(mineXIdx));
 
             for (int nbrYIdx = -1; nbrYIdx < 2; nbrYIdx++) {
                 for (int nbrXIdx = -1; nbrXIdx < 2; nbrXIdx++) {
@@ -109,20 +112,58 @@ public class Minesweeper {
     public void drawBoard() {
         for (List<Cell> rowCell : gameBoard) {
             for (Cell cell : rowCell) {
-                cell.getButton().addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent action) {
-                        if (!cell.getBomb()) {
-                            if (cell.getBombNumber() == 0) {
-                                recursingCells.add(cell);
-                                recursiveReveal();
+                cell.getButton().addMouseListener(new MouseListener() {
+                    public void mousePressed(MouseEvent event) {
+                    }
+
+                    public void mouseReleased(MouseEvent event) {
+                    }
+
+                    public void mouseEntered(MouseEvent event) {
+                    }
+
+                    public void mouseExited(MouseEvent event) {
+                    }
+
+                    public void mouseClicked(MouseEvent event) {
+                        if (gameOver) {
+                            return;
+                        }
+
+                        if (event.getButton() == MouseEvent.BUTTON1) {
+                            if (!cell.getBomb()) {
+                                if (cell.getBombNumber() == 0) {
+                                    recursingCells.add(cell);
+                                    recursiveReveal();
+                                } else {
+                                    cell.setHidden(false);
+                                    cell.updateButton();
+                                }
                             } else {
-                                cell.setHidden(false);
+                                for (Cell bCell : bombCells) {
+                                    bCell.showBomb();
+                                }
+                                gameOver = true;
+                            }
+
+                            recursingCells = new ArrayList<>();
+                            cell.updateButton();
+                        }
+                        if (event.getButton() == MouseEvent.BUTTON3) {
+                            if (cell.getHidden()) {
+                                if (!cell.getFlagged()) {
+                                    cell.setFlagged(true);
+                                } else {
+                                    cell.setFlagged(false);
+                                }
                                 cell.updateButton();
                             }
                         }
-                        recursingCells = new ArrayList<>();
-                        cell.updateButton();
+                    }
+                });
+                cell.getButton().addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent action) {
                     }
                 });
 
