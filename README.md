@@ -5,3 +5,5 @@ Rudimentary implementation of the "intermediate" level of minesweeper. Contains 
 ### TODO 
 
 1. Add an AI solver
+
+https://github.com/Reverend-Toady/minesweeper/assets/75803854/ba007162-8319-43bd-b4e9-da9cf12329e4
